@@ -1,0 +1,19 @@
+# Node dependencies
+node_modules/
+**/node_modules/
+
+# Local MongoDB persistence data directory
+backend/data/db/
+**/data/db/
+
+# Local environment secret variables
+.env
+**/.env
+
+# Production build distributions
+dist/
+**/dist/
+
+# System files
+.DS_Store
+Thumbs.db
