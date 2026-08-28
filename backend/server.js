@@ -12,12 +12,30 @@ const teamRoutes = require('./routes/teams');
 const participantRoutes = require('./routes/participants');
 const analyticsRoutes = require('./routes/analytics');
 
+const rateLimit = require('express-rate-limit');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Trust reverse proxy header (Nginx, Cloudflare, VPS proxies)
+app.set('trust proxy', 1);
+
+// Rate limiter configuration
+const apiLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 minute
+  max: Number(process.env.RATE_LIMIT_MAX) || 2000, // limit each IP to 300 requests per windowMs
+  message: {
+    status: 429,
+    message: 'Too many requests from this IP address, please try again in a minute.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/dashboard/api/', apiLimiter);
 
 // Ensure db directory exists
 const dbDir = path.join(__dirname, './data/db');
