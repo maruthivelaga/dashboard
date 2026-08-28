@@ -92,7 +92,7 @@ export default function ParticipantPortal({ showToast }) {
 
     setIsSavingDraft(true);
     try {
-      const res = await fetch('/api/submissions/draft', {
+      const res = await fetch('/dashboard/api/submissions/draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -243,7 +243,7 @@ export default function ParticipantPortal({ showToast }) {
     }
 
     try {
-      const res = await fetch('/api/submissions/submit', {
+      const res = await fetch('/dashboard/api/submissions/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

@@ -58,7 +58,7 @@ async function runTests() {
   try {
     // 1. Admin login test
     console.log('\nTest 1: Admin Authentication...');
-    const loginRes = await request('POST', '/api/auth/login', {
+    const loginRes = await request('POST', '/dashboard/api/auth/login', {
       username: 'admin',
       password: 'admin123'
     });
@@ -74,7 +74,7 @@ async function runTests() {
 
     // 2. Draft save test
     console.log('\nTest 2: Autosave Draft Submission...');
-    const draftRes = await request('POST', '/api/submissions/draft', {
+    const draftRes = await request('POST', '/dashboard/api/submissions/draft', {
       teamName: 'MahaDevs Test Team',
       members: [
         { registrationNo: '23A91A9999', name: 'Test Student 1', year: '3rd Year', section: 'C' }
@@ -94,7 +94,7 @@ async function runTests() {
 
     // 3. Final submission test
     console.log('\nTest 3: Final Project Submission...');
-    const submitRes = await request('POST', '/api/submissions/submit', {
+    const submitRes = await request('POST', '/dashboard/api/submissions/submit', {
       submissionId: draftSubId,
       teamName: 'MahaDevs Test Team',
       members: [
@@ -130,7 +130,7 @@ async function runTests() {
 
     // 4. Retrieve single project
     console.log('\nTest 4: Get Detailed Submission...');
-    const getDetailRes = await request('GET', `/api/submissions/${draftSubId}`);
+    const getDetailRes = await request('GET', `/dashboard/api/submissions/${draftSubId}`);
     if (getDetailRes.statusCode === 200 && getDetailRes.data.submissionId === draftSubId) {
       console.log('✓ Single submission details retrieved successfully.');
     } else {
@@ -142,7 +142,7 @@ async function runTests() {
 
     // 5. Submit review evaluation test
     console.log('\nTest 5: Submit Evaluation Review...');
-    const reviewRes = await request('PUT', `/api/submissions/${dbRecordId}/review`, {
+    const reviewRes = await request('PUT', `/dashboard/api/submissions/${dbRecordId}/review`, {
       problemRelevance: 8,
       agenticReasoning: 9,
       technicalFeasibility: 7,
@@ -167,7 +167,7 @@ async function runTests() {
 
     // 6. Query submissions list with search and filters
     console.log('\nTest 6: Querying submissions with search and status filters...');
-    const listRes = await request('GET', `/api/submissions?search=MahaTutor&status=Shortlisted`);
+    const listRes = await request('GET', `/dashboard/api/submissions?search=MahaTutor&status=Shortlisted`);
     if (listRes.statusCode === 200 && listRes.data.submissions.length > 0) {
       console.log(`✓ List query successful. Found ${listRes.data.submissions.length} matching entries.`);
       console.log(`  Team: ${listRes.data.submissions[0].teamName}`);

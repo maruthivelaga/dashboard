@@ -59,7 +59,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
   // Load dashboard/analytics data
   const fetchAnalytics = async () => {
     try {
-      const res = await fetch('/api/analytics');
+      const res = await fetch('/dashboard/api/analytics');
       if (res.ok) {
         const data = await res.json();
         setAnalytics(data);
@@ -85,7 +85,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
         page,
         limit: 8
       });
-      const res = await fetch(`/api/submissions?${query.toString()}`);
+      const res = await fetch(`/dashboard/api/submissions?${query.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setSubmissions(data.submissions);
@@ -104,7 +104,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
       const query = new URLSearchParams({
         search: teamSearch
       });
-      const res = await fetch(`/api/teams?${query.toString()}`);
+      const res = await fetch(`/dashboard/api/teams?${query.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setTeams(data);
@@ -120,7 +120,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
       const query = new URLSearchParams({
         search: participantSearch
       });
-      const res = await fetch(`/api/participants?${query.toString()}`);
+      const res = await fetch(`/dashboard/api/participants?${query.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setParticipants(data);
@@ -153,7 +153,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
     if (selectedSubId) {
       const fetchDetail = async () => {
         try {
-          const res = await fetch(`/api/submissions/${selectedSubId}`);
+          const res = await fetch(`/dashboard/api/submissions/${selectedSubId}`);
           if (res.ok) {
             const data = await res.json();
             setSelectedSub(data);
@@ -197,7 +197,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
     e.preventDefault();
     if (!selectedSub) return;
     try {
-      const res = await fetch(`/api/submissions/${selectedSub._id}/review`, {
+      const res = await fetch(`/dashboard/api/submissions/${selectedSub._id}/review`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -229,7 +229,7 @@ export default function AdminDashboard({ showToast, onLogout, adminUser }) {
   const handleUpdateStatus = async (status) => {
     if (!selectedSub) return;
     try {
-      const res = await fetch(`/api/submissions/${selectedSub._id}/status`, {
+      const res = await fetch(`/dashboard/api/submissions/${selectedSub._id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -33,8 +33,24 @@ async function startServer() {
     let connectionUri = '';
 
     if (customUri) {
-      connectionUri = customUri;
-      console.log(`Connecting to MongoDB service at: ${connectionUri}`);
+      try {
+        console.log(`Attempting connection to MongoDB service at: ${customUri}`);
+        await mongoose.connect(customUri, { serverSelectionTimeoutMS: 3000 });
+        console.log('Mongoose connected successfully to configured MongoDB service.');
+      } catch (err) {
+        console.warn(`Could not connect to MONGODB_URI (${customUri}): ${err.message}`);
+        console.log('Falling back to self-contained MongoDB Memory Server...');
+        mongoServer = await MongoMemoryServer.create({
+          instance: {
+            dbPath: dbDir,
+            storageEngine: 'wiredTiger'
+          }
+        });
+        connectionUri = mongoServer.getUri();
+        console.log(`Self-contained MongoDB started successfully at: ${connectionUri}`);
+        await mongoose.connect(connectionUri);
+        console.log('Mongoose connected to self-contained MongoDB.');
+      }
     } else {
       console.log('Starting self-contained MongoDB Memory Server with local persistence...');
       // Create the memory server with persistent dbPath
@@ -46,34 +62,41 @@ async function startServer() {
       });
       connectionUri = mongoServer.getUri();
       console.log(`Self-contained MongoDB started successfully at: ${connectionUri}`);
+      await mongoose.connect(connectionUri);
+      console.log('Mongoose connected to self-contained MongoDB.');
     }
-
-    await mongoose.connect(connectionUri);
-    console.log('Mongoose connected to MongoDB.');
 
     // Seed database with sample data
     const seedDatabase = require('./seed');
     await seedDatabase();
 
     // Register routes
-    app.use('/api/auth', authRoutes);
-    app.use('/api/submissions', submissionRoutes);
-    app.use('/api/teams', teamRoutes);
-    app.use('/api/participants', participantRoutes);
-    app.use('/api/analytics', analyticsRoutes);
+    app.use('/dashboard/api/auth', authRoutes);
+    app.use('/dashboard/api/submissions', submissionRoutes);
+    app.use('/dashboard/api/teams', teamRoutes);
+    app.use('/dashboard/api/participants', participantRoutes);
+    app.use('/dashboard/api/analytics', analyticsRoutes);
 
-    // Serve static assets in production
-    // If the frontend is built, serve it from frontend/dist
+    // Serve static assets in production under /dashboard
     const frontendDist = path.join(__dirname, '../frontend/dist');
     if (fs.existsSync(frontendDist)) {
-      app.use(express.static(frontendDist));
-      app.get('*', (req, res) => {
+      app.use('/dashboard', express.static(frontendDist));
+      app.get('/dashboard/*', (req, res) => {
         res.sendFile(path.resolve(frontendDist, 'index.html'));
       });
-      console.log('Serving frontend static files from production build.');
+      app.get('/dashboard', (req, res) => {
+        res.sendFile(path.resolve(frontendDist, 'index.html'));
+      });
+      app.get('/', (req, res) => {
+        res.redirect('/dashboard');
+      });
+      console.log('Serving frontend static files from production build under /dashboard.');
     } else {
       app.get('/', (req, res) => {
-        res.send('AI Agent Expo API is running. Start the frontend developer server to view the portal.');
+        res.redirect('/dashboard');
+      });
+      app.get('/dashboard', (req, res) => {
+        res.send('AI Agent Expo API is running at /dashboard/api. Start the frontend developer server to view the portal.');
       });
     }
 
