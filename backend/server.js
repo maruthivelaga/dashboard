@@ -57,6 +57,9 @@ async function startServer() {
         console.log('Mongoose connected successfully to configured MongoDB service.');
       } catch (err) {
         console.warn(`Could not connect to MONGODB_URI (${customUri}): ${err.message}`);
+        if (process.env.RENDER === 'true' || process.env.NODE_ENV === 'production') {
+          throw new Error(`Production database connection failed. Render deployments must connect to a persistent external database. Please verify your MONGODB_URI and MongoDB Atlas IP access whitelists. Original error: ${err.message}`);
+        }
         console.log('Falling back to self-contained MongoDB Memory Server...');
         mongoServer = await MongoMemoryServer.create({
           instance: {
@@ -70,6 +73,9 @@ async function startServer() {
         console.log('Mongoose connected to self-contained MongoDB.');
       }
     } else {
+      if (process.env.RENDER === 'true' || process.env.NODE_ENV === 'production') {
+        throw new Error('Production Database Error: MONGODB_URI environment variable is required for Render deployments. Please set it in your Render dashboard environment settings.');
+      }
       console.log('Starting self-contained MongoDB Memory Server with local persistence...');
       // Create the memory server with persistent dbPath
       mongoServer = await MongoMemoryServer.create({
